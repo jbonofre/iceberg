@@ -36,7 +36,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.apache.iceberg.BaseMetastoreCatalog;
 import org.apache.iceberg.CatalogProperties;
 import org.apache.iceberg.CatalogUtil;
 import org.apache.iceberg.TableMetadata;
@@ -48,6 +47,7 @@ import org.apache.iceberg.exceptions.AlreadyExistsException;
 import org.apache.iceberg.exceptions.NamespaceNotEmptyException;
 import org.apache.iceberg.exceptions.NoSuchNamespaceException;
 import org.apache.iceberg.exceptions.NoSuchTableException;
+import org.apache.iceberg.exceptions.NoSuchViewException;
 import org.apache.iceberg.exceptions.NotFoundException;
 import org.apache.iceberg.hadoop.Configurable;
 import org.apache.iceberg.io.FileIO;
@@ -58,10 +58,12 @@ import org.apache.iceberg.relocated.com.google.common.collect.ImmutableMap;
 import org.apache.iceberg.relocated.com.google.common.collect.Lists;
 import org.apache.iceberg.relocated.com.google.common.collect.Maps;
 import org.apache.iceberg.util.LocationUtil;
+import org.apache.iceberg.view.BaseMetastoreViewCatalog;
+import org.apache.iceberg.view.ViewOperations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class JdbcCatalog extends BaseMetastoreCatalog
+public class JdbcCatalog extends BaseMetastoreViewCatalog
     implements Configurable<Object>, SupportsNamespaces, Closeable {
 
   public static final String PROPERTY_PREFIX = "jdbc.";
@@ -157,8 +159,10 @@ public class JdbcCatalog extends BaseMetastoreCatalog
             return true;
           }
 
-          LOG.debug("Creating table {} to store iceberg catalog", JdbcUtil.CATALOG_TABLE_NAME);
-          return conn.prepareStatement(JdbcUtil.CREATE_CATALOG_TABLE).execute();
+          LOG.debug(
+              "Creating table {} to store iceberg catalog tables", JdbcUtil.CATALOG_TABLE_NAME);
+          return conn.prepareStatement(JdbcUtil.createCatalogTableOrViewSqlStatement(true))
+              .execute();
         });
 
     connections.run(
@@ -180,12 +184,35 @@ public class JdbcCatalog extends BaseMetastoreCatalog
               JdbcUtil.NAMESPACE_PROPERTIES_TABLE_NAME);
           return conn.prepareStatement(JdbcUtil.CREATE_NAMESPACE_PROPERTIES_TABLE).execute();
         });
+
+    connections.run(
+        conn -> {
+          DatabaseMetaData dbMeta = conn.getMetaData();
+          ResultSet viewTableExists =
+              dbMeta.getTables(
+                  null /* catalog name */,
+                  null /* schemaPattern */,
+                  JdbcUtil.CATALOG_VIEW_NAME /* viewNamePattern */,
+                  null /* types */);
+          if (viewTableExists.next()) {
+            return true;
+          }
+
+          LOG.debug("Creating table {} to store iceberg catalog views", JdbcUtil.CATALOG_VIEW_NAME);
+          return conn.prepareStatement(JdbcUtil.createCatalogTableOrViewSqlStatement(false))
+              .execute();
+        });
   }
 
   @Override
   protected TableOperations newTableOps(TableIdentifier tableIdentifier) {
     return new JdbcTableOperations(
         connections, io, catalogName, tableIdentifier, catalogProperties);
+  }
+
+  @Override
+  protected ViewOperations newViewOps(TableIdentifier viewIdentifier) {
+    return new JdbcViewOperations(connections, io, catalogName, viewIdentifier, catalogProperties);
   }
 
   @Override
@@ -210,7 +237,7 @@ public class JdbcCatalog extends BaseMetastoreCatalog
 
     int deletedRecords =
         execute(
-            JdbcUtil.DROP_TABLE_SQL,
+            JdbcUtil.dropTableOrViewSqlStatement(true),
             catalogName,
             JdbcUtil.namespaceToString(identifier.namespace()),
             identifier.name());
@@ -233,18 +260,20 @@ public class JdbcCatalog extends BaseMetastoreCatalog
     if (!namespaceExists(namespace)) {
       throw new NoSuchNamespaceException("Namespace does not exist: %s", namespace);
     }
-
     return fetch(
         row ->
             JdbcUtil.stringToTableIdentifier(
                 row.getString(JdbcUtil.TABLE_NAMESPACE), row.getString(JdbcUtil.TABLE_NAME)),
-        JdbcUtil.LIST_TABLES_SQL,
+        JdbcUtil.listTablesOrViewsSqlStatement(true),
         catalogName,
         JdbcUtil.namespaceToString(namespace));
   }
 
   @Override
   public void renameTable(TableIdentifier from, TableIdentifier to) {
+    if (viewExists(to)) {
+      throw new AlreadyExistsException("Cannot rename %s to %s. View already exists", from, to);
+    }
     int updatedRecords =
         execute(
             err -> {
@@ -254,7 +283,7 @@ public class JdbcCatalog extends BaseMetastoreCatalog
                 throw new AlreadyExistsException("Table already exists: %s", to);
               }
             },
-            JdbcUtil.RENAME_TABLE_SQL,
+            JdbcUtil.renameTableOrViewSqlStatement(true),
             JdbcUtil.namespaceToString(to.namespace()),
             to.name(),
             catalogName,
@@ -315,6 +344,11 @@ public class JdbcCatalog extends BaseMetastoreCatalog
             row -> JdbcUtil.stringToNamespace(row.getString(JdbcUtil.NAMESPACE_NAME)),
             JdbcUtil.LIST_ALL_PROPERTY_NAMESPACES_SQL,
             catalogName));
+    namespaces.addAll(
+        fetch(
+            row -> JdbcUtil.stringToNamespace(row.getString(JdbcUtil.VIEW_NAMESPACE)),
+            JdbcUtil.LIST_ALL_VIEW_NAMESPACES_SQL,
+            catalogName));
 
     namespaces =
         namespaces.stream()
@@ -343,7 +377,7 @@ public class JdbcCatalog extends BaseMetastoreCatalog
     namespaces.addAll(
         fetch(
             row -> JdbcUtil.stringToNamespace(row.getString(JdbcUtil.TABLE_NAMESPACE)),
-            JdbcUtil.LIST_NAMESPACES_SQL,
+            JdbcUtil.LIST_TABLE_NAMESPACES_SQL,
             catalogName,
             JdbcUtil.namespaceToString(namespace) + "%"));
     namespaces.addAll(
@@ -352,6 +386,12 @@ public class JdbcCatalog extends BaseMetastoreCatalog
             JdbcUtil.LIST_PROPERTY_NAMESPACES_SQL,
             catalogName,
             JdbcUtil.namespaceToString(namespace) + "%"));
+    namespaces.addAll(
+        fetch(
+            row -> JdbcUtil.stringToNamespace(row.getString(JdbcUtil.VIEW_NAMESPACE)),
+            JdbcUtil.LIST_VIEW_NAMESPACES_SQL,
+            catalogName,
+            JdbcUtil.namespaceToString(namespace) + "%s"));
 
     int subNamespaceLevelLength = namespace.levels().length + 1;
     namespaces =
@@ -488,6 +528,78 @@ public class JdbcCatalog extends BaseMetastoreCatalog
   @Override
   public boolean namespaceExists(Namespace namespace) {
     return JdbcUtil.namespaceExists(catalogName, connections, namespace);
+  }
+
+  @Override
+  public boolean dropView(TableIdentifier identifier) {
+    int deletedRecords =
+        execute(
+            JdbcUtil.dropTableOrViewSqlStatement(false),
+            catalogName,
+            JdbcUtil.namespaceToString(identifier.namespace()),
+            identifier.name());
+
+    if (deletedRecords == 0) {
+      LOG.info("Skipping drop, view does not exist: {}", identifier);
+      return false;
+    }
+
+    LOG.info("Dropped view: {}", identifier);
+    return true;
+  }
+
+  @Override
+  public List<TableIdentifier> listViews(Namespace namespace) {
+    if (!namespaceExists(namespace)) {
+      throw new NoSuchNamespaceException("Namespace does not exist: %s", namespace);
+    }
+    return fetch(
+        row ->
+            JdbcUtil.stringToTableIdentifier(
+                row.getString(JdbcUtil.VIEW_NAMESPACE), row.getString(JdbcUtil.VIEW_NAME)),
+        JdbcUtil.listTablesOrViewsSqlStatement(false),
+        catalogName,
+        JdbcUtil.namespaceToString(namespace));
+  }
+
+  @Override
+  public void renameView(TableIdentifier from, TableIdentifier to) {
+    if (!viewExists(from)) {
+      throw new NoSuchViewException("View does not exist");
+    }
+    if (!namespaceExists(to.namespace())) {
+      throw new NoSuchNamespaceException("Namespace does not exist: %s", to.namespace());
+    }
+    if (tableExists(to)) {
+      throw new AlreadyExistsException("Cannot rename %s to %s. Table already exists", from, to);
+    }
+
+    int updatedRecords =
+        execute(
+            err -> {
+              // SQLite doesn't set SQLState or throw SQLIntegrityConstraintViolationException
+              if (err instanceof SQLIntegrityConstraintViolationException
+                  || (err.getMessage() != null && err.getMessage().contains("constraint failed"))) {
+                throw new AlreadyExistsException(
+                    "Cannot rename %s to %s. View already exists", from, to);
+              }
+            },
+            JdbcUtil.renameTableOrViewSqlStatement(false),
+            JdbcUtil.namespaceToString(to.namespace()),
+            to.name(),
+            catalogName,
+            JdbcUtil.namespaceToString(from.namespace()),
+            from.name());
+
+    if (updatedRecords == 1) {
+      LOG.info("Renamed view from {}, to {}", from, to);
+    } else if (updatedRecords == 0) {
+      throw new NoSuchViewException("View does not exist: %s", from);
+    } else {
+      LOG.warn(
+          "Rename operation affected {} rows: the catalog view's primary key assumption has been violated",
+          updatedRecords);
+    }
   }
 
   private int execute(String sql, String... args) {
