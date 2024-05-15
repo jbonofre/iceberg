@@ -42,6 +42,7 @@ include 'dell'
 include 'snowflake'
 include 'delta-lake'
 include 'kafka-connect'
+include 'camel'
 include 'open-api'
 
 project(':bom').name = 'iceberg-bom'
@@ -68,6 +69,7 @@ project(':dell').name = 'iceberg-dell'
 project(':snowflake').name = 'iceberg-snowflake'
 project(':delta-lake').name = 'iceberg-delta-lake'
 project(':kafka-connect').name = 'iceberg-kafka-connect'
+project(':camel').name = 'iceberg-camel'
 project(':open-api').name = 'iceberg-open-api'
 
 if (null != System.getProperty("allVersions")) {
@@ -201,3 +203,7 @@ project(":iceberg-kafka-connect:kafka-connect-events").name = "iceberg-kafka-con
 include ":iceberg-kafka-connect:kafka-connect"
 project(":iceberg-kafka-connect:kafka-connect").projectDir = file('kafka-connect/kafka-connect')
 project(":iceberg-kafka-connect:kafka-connect").name = "iceberg-kafka-connect"
+
+include ":iceberg-camel:camel-iceberg"
+project(":iceberg-camel:camel-iceberg").projectDir = file('camel/camel-iceberg')
+project(":iceberg-camel:camel-iceberg").name = "camel-iceberg"
