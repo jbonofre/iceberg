@@ -24,7 +24,12 @@ project(":iceberg-camel:camel-iceberg") {
         api project(':iceberg-api')
         implementation project(':iceberg-core')
         implementation project(':iceberg-common')
-
+        implementation project(':iceberg-data')
+        implementation project(':iceberg-parquet')
+        compileOnly(libs.hadoop2.client) {
+            exclude group: 'org.apache.avro', module: 'avro'
+            exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+        }
         compileOnly libs.camel.core
     }
 

@@ -21,13 +21,17 @@
 
 package org.apache.iceberg.camel;
 
+import java.io.IOException;
+import java.util.concurrent.ScheduledExecutorService;
 import org.apache.camel.Endpoint;
+import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
-import org.apache.camel.support.DefaultConsumer;
+import org.apache.camel.SuspendableService;
+import org.apache.camel.support.ScheduledPollConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class IcebergConsumer extends DefaultConsumer {
+public class IcebergConsumer extends ScheduledPollConsumer implements SuspendableService {
 
     private static final Logger LOG = LoggerFactory.getLogger(IcebergConsumer.class);
 
@@ -35,11 +39,42 @@ public class IcebergConsumer extends DefaultConsumer {
         super(endpoint, processor);
     }
 
-    @Override
-    public IcebergEndpoint getEndpoint() {
-        return (IcebergEndpoint) super.getEndpoint();
+    public IcebergConsumer(Endpoint endpoint, Processor processor, ScheduledExecutorService scheduledExecutorService) {
+        super(endpoint, processor, scheduledExecutorService);
     }
 
-    
+    @Override
+    public Processor getProcessor() {
+        return null;
+    }
 
+    @Override
+    public Exchange createExchange(boolean autoRelease) {
+        return null;
+    }
+
+    @Override
+    public void releaseExchange(Exchange exchange, boolean autoRelease) {
+
+    }
+
+    @Override
+    public void start() {
+
+    }
+
+    @Override
+    public void stop() {
+
+    }
+
+    @Override
+    public void close() throws IOException {
+        super.close();
+    }
+
+    @Override
+    protected int poll() throws Exception {
+        return 0;
+    }
 }
