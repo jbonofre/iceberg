@@ -42,7 +42,7 @@ import org.apache.iceberg.parquet.Parquet;
 
 public class IcebergProducer extends DefaultProducer {
 
-    public IcebergProducer(Endpoint endpoint) {
+    public IcebergProducer(IcebergEndpoint endpoint) {
         super(endpoint);
     }
 
@@ -60,6 +60,8 @@ public class IcebergProducer extends DefaultProducer {
             fileFormat = FileFormat.fromString(exchange.getMessage().getHeader("ICEBERG_FILE_FORMAT", String.class));
         }
 
+        // TODO write()
+        IcebergComponent component = getEndpoint().getComponent(IcebergComponent.class);
 
     }
 
@@ -70,7 +72,7 @@ public class IcebergProducer extends DefaultProducer {
 
         String filename = table.location() + "/" + UUID.randomUUID().toString();
         OutputFile outputFile = table.io().newOutputFile(filename);
-
+        
         DataWriter dataWriter;
 
         switch (fileFormat) {
@@ -105,11 +107,11 @@ public class IcebergProducer extends DefaultProducer {
             try {
                 dataWriter.write(record);
             } catch (Exception e) {
-
+                // TODO close the writer
             }
         }
 
-
+        table.newAppend().appendFile(dataWriter.toDataFile()).commit();
     }
 
 }
