@@ -72,7 +72,7 @@ public class IcebergProducer extends DefaultProducer {
 
         String filename = table.location() + "/" + UUID.randomUUID().toString();
         OutputFile outputFile = table.io().newOutputFile(filename);
-        
+
         DataWriter dataWriter;
 
         switch (fileFormat) {
