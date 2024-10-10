@@ -20,6 +20,7 @@ package org.apache.iceberg.types;
 
 import java.util.Deque;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -28,14 +29,13 @@ import org.apache.iceberg.exceptions.ValidationException;
 import org.apache.iceberg.relocated.com.google.common.base.Joiner;
 import org.apache.iceberg.relocated.com.google.common.collect.ImmutableMap;
 import org.apache.iceberg.relocated.com.google.common.collect.Iterators;
-import org.apache.iceberg.relocated.com.google.common.collect.Lists;
 import org.apache.iceberg.relocated.com.google.common.collect.Maps;
 
 public class IndexByName extends TypeUtil.SchemaVisitor<Map<String, Integer>> {
   private static final Joiner DOT = Joiner.on(".");
 
-  private final Deque<String> fieldNames = Lists.newLinkedList();
-  private final Deque<String> shortFieldNames = Lists.newLinkedList();
+  private final Deque<String> fieldNames = new LinkedList<>();
+  private final Deque<String> shortFieldNames = new LinkedList<>();
   private final Map<String, Integer> nameToId = Maps.newHashMap();
   private final Map<String, Integer> shortNameToId = Maps.newHashMap();
   private final Function<String, String> quotingFunc;

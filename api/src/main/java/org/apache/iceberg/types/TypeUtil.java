@@ -18,6 +18,7 @@
  */
 package org.apache.iceberg.types;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -35,7 +36,6 @@ import org.apache.iceberg.relocated.com.google.common.collect.ImmutableList;
 import org.apache.iceberg.relocated.com.google.common.collect.ImmutableMap;
 import org.apache.iceberg.relocated.com.google.common.collect.ImmutableSet;
 import org.apache.iceberg.relocated.com.google.common.collect.Iterables;
-import org.apache.iceberg.relocated.com.google.common.collect.Lists;
 import org.apache.iceberg.relocated.com.google.common.collect.Maps;
 
 public class TypeUtil {
@@ -144,7 +144,7 @@ public class TypeUtil {
   }
 
   public static Schema join(Schema left, Schema right) {
-    List<Types.NestedField> joinedColumns = Lists.newArrayList(left.columns());
+    List<Types.NestedField> joinedColumns = new ArrayList<>(left.columns());
     for (Types.NestedField rightColumn : right.columns()) {
       Types.NestedField leftColumn = left.findField(rightColumn.fieldId());
 
@@ -625,7 +625,7 @@ public class TypeUtil {
     switch (type.typeId()) {
       case STRUCT:
         Types.StructType struct = type.asNestedType().asStructType();
-        List<T> results = Lists.newArrayListWithExpectedSize(struct.fields().size());
+        List<T> results = new ArrayList<>(struct.fields().size());
         for (Types.NestedField field : struct.fields()) {
           visitor.beforeField(field);
           T result;
@@ -758,8 +758,7 @@ public class TypeUtil {
     switch (type.typeId()) {
       case STRUCT:
         Types.StructType struct = type.asNestedType().asStructType();
-        List<VisitFieldFuture<T>> results =
-            Lists.newArrayListWithExpectedSize(struct.fields().size());
+        List<VisitFieldFuture<T>> results = new ArrayList<>(struct.fields().size());
         for (Types.NestedField field : struct.fields()) {
           results.add(new VisitFieldFuture<>(field, visitor));
         }

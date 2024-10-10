@@ -18,13 +18,13 @@
  */
 package org.apache.iceberg.transforms;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.iceberg.NullOrder;
 import org.apache.iceberg.Schema;
 import org.apache.iceberg.SortDirection;
 import org.apache.iceberg.SortField;
 import org.apache.iceberg.SortOrder;
-import org.apache.iceberg.relocated.com.google.common.collect.Lists;
 
 public interface SortOrderVisitor<T> {
 
@@ -65,7 +65,7 @@ public interface SortOrderVisitor<T> {
   @SuppressWarnings("checkstyle:CyclomaticComplexity")
   static <R> List<R> visit(SortOrder sortOrder, SortOrderVisitor<R> visitor) {
     Schema schema = sortOrder.schema();
-    List<R> results = Lists.newArrayListWithExpectedSize(sortOrder.fields().size());
+    List<R> results = new ArrayList<>(sortOrder.fields().size());
 
     for (SortField field : sortOrder.fields()) {
       String sourceName = schema.findColumnName(field.sourceId());

@@ -18,11 +18,11 @@
  */
 package org.apache.iceberg.types;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 import org.apache.iceberg.Schema;
 import org.apache.iceberg.relocated.com.google.common.base.Preconditions;
-import org.apache.iceberg.relocated.com.google.common.collect.Lists;
 
 class ReassignIds extends TypeUtil.CustomOrderSchemaVisitor<Type> {
   private final Schema sourceSchema;
@@ -74,8 +74,9 @@ class ReassignIds extends TypeUtil.CustomOrderSchemaVisitor<Type> {
     List<Types.NestedField> fields = struct.fields();
     int length = fields.size();
 
-    List<Type> types = Lists.newArrayList(fieldTypes);
-    List<Types.NestedField> newFields = Lists.newArrayListWithExpectedSize(length);
+    List<Type> types = new ArrayList<>();
+    fieldTypes.forEach(e -> types.add(e));
+    List<Types.NestedField> newFields = new ArrayList<>(length);
     for (int i = 0; i < length; i += 1) {
       Types.NestedField field = fields.get(i);
       int fieldId = id(sourceStruct, field.name());

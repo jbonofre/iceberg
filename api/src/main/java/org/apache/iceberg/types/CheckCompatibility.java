@@ -18,6 +18,7 @@
  */
 package org.apache.iceberg.types;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -25,7 +26,6 @@ import java.util.function.Supplier;
 import org.apache.iceberg.Schema;
 import org.apache.iceberg.relocated.com.google.common.base.Preconditions;
 import org.apache.iceberg.relocated.com.google.common.collect.ImmutableList;
-import org.apache.iceberg.relocated.com.google.common.collect.Lists;
 import org.apache.iceberg.relocated.com.google.common.collect.Maps;
 
 public class CheckCompatibility extends TypeUtil.CustomOrderSchemaVisitor<List<String>> {
@@ -131,7 +131,7 @@ public class CheckCompatibility extends TypeUtil.CustomOrderSchemaVisitor<List<S
       return ImmutableList.of(String.format(": %s cannot be read as a struct", currentType));
     }
 
-    List<String> errors = Lists.newArrayList();
+    List<String> errors = new ArrayList<>();
 
     for (List<String> fieldErrors : fieldErrorLists) {
       errors.addAll(fieldErrors);
@@ -168,7 +168,7 @@ public class CheckCompatibility extends TypeUtil.CustomOrderSchemaVisitor<List<S
   public List<String> field(Types.NestedField readField, Supplier<List<String>> fieldErrors) {
     Types.StructType struct = currentType.asStructType();
     Types.NestedField field = struct.field(readField.fieldId());
-    List<String> errors = Lists.newArrayList();
+    List<String> errors = new ArrayList<>();
 
     if (field == null) {
       if (readField.isRequired()) {
@@ -207,7 +207,7 @@ public class CheckCompatibility extends TypeUtil.CustomOrderSchemaVisitor<List<S
     }
 
     Types.ListType list = currentType.asNestedType().asListType();
-    List<String> errors = Lists.newArrayList();
+    List<String> errors = new ArrayList<>();
 
     this.currentType = list.elementType();
     try {
@@ -231,7 +231,7 @@ public class CheckCompatibility extends TypeUtil.CustomOrderSchemaVisitor<List<S
     }
 
     Types.MapType map = currentType.asNestedType().asMapType();
-    List<String> errors = Lists.newArrayList();
+    List<String> errors = new ArrayList<>();
 
     try {
       if (readMap.isValueRequired() && map.isValueOptional()) {

@@ -23,6 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -30,7 +31,6 @@ import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 import org.apache.iceberg.PartitionSpec;
 import org.apache.iceberg.Schema;
-import org.apache.iceberg.relocated.com.google.common.collect.Lists;
 import org.apache.iceberg.types.Types;
 import org.apache.iceberg.util.DateTimeUtil;
 import org.junit.jupiter.api.Test;
@@ -57,11 +57,11 @@ public class TestExpressionUtil {
   @Test
   public void testUnchangedUnaryPredicates() {
     for (Expression unary :
-        Lists.newArrayList(
+            new ArrayList<>(Arrays.asList(
             Expressions.isNull("test"),
             Expressions.notNull("test"),
             Expressions.isNaN("test"),
-            Expressions.notNaN("test"))) {
+            Expressions.notNaN("test")))) {
       assertEquals(unary, ExpressionUtil.sanitize(unary));
       assertEquals(unary, ExpressionUtil.sanitize(FLOAT_TEST, unary, true));
     }
@@ -104,7 +104,7 @@ public class TestExpressionUtil {
         .isEqualTo("test IN ((2-digit-int), (3-digit-int), ... (8 values hidden, 10 in total))");
 
     // The sanitization resulting in an expression tree does not abbreviate
-    List<String> expectedValues = Lists.newArrayList();
+    List<String> expectedValues = new ArrayList<>();
     expectedValues.addAll(Collections.nCopies(5, "(2-digit-int)"));
     expectedValues.addAll(Collections.nCopies(5, "(3-digit-int)"));
     assertEquals(
@@ -164,7 +164,7 @@ public class TestExpressionUtil {
             "test NOT IN ((2-digit-int), (3-digit-int), ... (8 values hidden, 10 in total))");
 
     // The sanitization resulting in an expression tree does not abbreviate
-    List<String> expectedValues = Lists.newArrayList();
+    List<String> expectedValues = new ArrayList<>();
     expectedValues.addAll(Collections.nCopies(5, "(2-digit-int)"));
     expectedValues.addAll(Collections.nCopies(5, "(3-digit-int)"));
     assertEquals(
@@ -457,13 +457,13 @@ public class TestExpressionUtil {
   @Test
   public void testSanitizeTimestamp() {
     for (String timestamp :
-        Lists.newArrayList(
+            new ArrayList<>(Arrays.asList(
             "2022-04-29T23:49:51",
             "2022-04-29T23:49:51.123456",
             "2022-04-29T23:49:51-07:00",
             "2022-04-29T23:49:51.123456+01:00",
             "2022-04-29T23:49:51.123456789",
-            "2022-04-29T23:49:51.123456789+01:00")) {
+            "2022-04-29T23:49:51.123456789+01:00"))) {
       assertEquals(
           Expressions.equal("test", "(timestamp)"),
           ExpressionUtil.sanitize(Expressions.equal("test", timestamp)));
@@ -786,11 +786,11 @@ public class TestExpressionUtil {
   public void testSanitizeStringFallback() {
     Pattern filterPattern = Pattern.compile("^test = \\(hash-[0-9a-fA-F]{8}\\)$");
     for (String filter :
-        Lists.newArrayList(
+            new ArrayList<>(Arrays.asList(
             "2022-20-29",
             "2022-04-29T40:49:51.123456",
             "2022-04-29T23:70:51-07:00",
-            "2022-04-29T23:49:51.123456+100:00")) {
+            "2022-04-29T23:49:51.123456+100:00"))) {
       String sanitizedFilter = ExpressionUtil.toSanitizedString(Expressions.equal("test", filter));
       assertThat(filterPattern.matcher(sanitizedFilter)).matches();
     }

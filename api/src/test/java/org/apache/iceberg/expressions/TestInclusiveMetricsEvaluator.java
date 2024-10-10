@@ -41,6 +41,7 @@ import static org.apache.iceberg.types.Types.NestedField.required;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.iceberg.DataFile;
 import org.apache.iceberg.Schema;
@@ -48,7 +49,6 @@ import org.apache.iceberg.TestHelpers.Row;
 import org.apache.iceberg.TestHelpers.TestDataFile;
 import org.apache.iceberg.exceptions.ValidationException;
 import org.apache.iceberg.relocated.com.google.common.collect.ImmutableMap;
-import org.apache.iceberg.relocated.com.google.common.collect.Lists;
 import org.apache.iceberg.types.Types;
 import org.apache.iceberg.types.Types.IntegerType;
 import org.apache.iceberg.types.Types.StringType;
@@ -782,7 +782,7 @@ public class TestInclusiveMetricsEvaluator {
     assertThat(shouldRead).as("Should read: in on no nulls column").isTrue();
 
     // should read as the number of elements in the in expression is too big
-    List<Integer> ids = Lists.newArrayListWithExpectedSize(400);
+    List<Integer> ids = new ArrayList<>(400);
     for (int id = -400; id <= 0; id++) {
       ids.add(id);
     }

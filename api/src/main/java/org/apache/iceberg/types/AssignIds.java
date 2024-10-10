@@ -18,11 +18,11 @@
  */
 package org.apache.iceberg.types;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Supplier;
 import org.apache.iceberg.Schema;
-import org.apache.iceberg.relocated.com.google.common.collect.Lists;
 
 class AssignIds extends TypeUtil.CustomOrderSchemaVisitor<Type> {
   private final TypeUtil.GetID getID;
@@ -46,12 +46,12 @@ class AssignIds extends TypeUtil.CustomOrderSchemaVisitor<Type> {
     int length = struct.fields().size();
 
     // assign IDs for this struct's fields first
-    List<Integer> newIds = Lists.newArrayListWithExpectedSize(length);
+    List<Integer> newIds = new ArrayList<>(length);
     for (Types.NestedField field : fields) {
       newIds.add(idFor(field.fieldId()));
     }
 
-    List<Types.NestedField> newFields = Lists.newArrayListWithExpectedSize(length);
+    List<Types.NestedField> newFields = new ArrayList<>(length);
     Iterator<Type> types = futures.iterator();
     for (int i = 0; i < length; i += 1) {
       Types.NestedField field = fields.get(i);

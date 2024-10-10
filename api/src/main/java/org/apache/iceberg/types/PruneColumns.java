@@ -18,11 +18,11 @@
  */
 package org.apache.iceberg.types;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import org.apache.iceberg.Schema;
 import org.apache.iceberg.relocated.com.google.common.base.Preconditions;
-import org.apache.iceberg.relocated.com.google.common.collect.Lists;
 import org.apache.iceberg.types.Types.ListType;
 import org.apache.iceberg.types.Types.MapType;
 import org.apache.iceberg.types.Types.StructType;
@@ -53,7 +53,7 @@ class PruneColumns extends TypeUtil.SchemaVisitor<Type> {
   @Override
   public Type struct(Types.StructType struct, List<Type> fieldResults) {
     List<Types.NestedField> fields = struct.fields();
-    List<Types.NestedField> selectedFields = Lists.newArrayListWithExpectedSize(fields.size());
+    List<Types.NestedField> selectedFields = new ArrayList<>(fields.size());
     boolean sameTypes = true;
 
     for (int i = 0; i < fieldResults.size(); i += 1) {
