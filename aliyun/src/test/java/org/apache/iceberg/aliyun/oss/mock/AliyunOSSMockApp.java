@@ -18,12 +18,12 @@
  */
 package org.apache.iceberg.aliyun.oss.mock;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.iceberg.relocated.com.google.common.base.Preconditions;
-import org.apache.iceberg.relocated.com.google.common.collect.Lists;
 import org.apache.iceberg.relocated.com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.Banner;
@@ -100,7 +100,7 @@ public class AliyunOSSMockApp {
      */
     @Bean
     public MappingJackson2XmlHttpMessageConverter getMessageConverter() {
-      List<MediaType> mediaTypes = Lists.newArrayList();
+      List<MediaType> mediaTypes = new ArrayList<>();
       mediaTypes.add(MediaType.APPLICATION_XML);
       mediaTypes.add(MediaType.APPLICATION_FORM_URLENCODED);
       mediaTypes.add(MediaType.APPLICATION_OCTET_STREAM);

@@ -39,7 +39,6 @@ import org.apache.hadoop.hive.serde2.io.DateWritable;
 import org.apache.hadoop.hive.serde2.typeinfo.PrimitiveTypeInfo;
 import org.apache.hadoop.hive.serde2.typeinfo.TypeInfo;
 import org.apache.hadoop.mapred.JobConf;
-import org.apache.iceberg.relocated.com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,7 +74,7 @@ public class CompatibilityHiveVectorUtils {
     BaseWork work = null;
     // HIVE-16985: try to find the fake merge work for SMB join, that is really another MapWork.
     if (inputName != null) {
-      if (prefixes == null || !Lists.newArrayList(prefixes.split(",")).contains(inputName)) {
+      if (prefixes == null || !(new ArrayList<>(prefixes.split(","))).contains(inputName)) {
         inputName = null;
       }
     }

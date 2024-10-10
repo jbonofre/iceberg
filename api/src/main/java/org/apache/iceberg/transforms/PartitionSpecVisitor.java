@@ -18,11 +18,11 @@
  */
 package org.apache.iceberg.transforms;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.iceberg.PartitionField;
 import org.apache.iceberg.PartitionSpec;
 import org.apache.iceberg.Schema;
-import org.apache.iceberg.relocated.com.google.common.collect.Lists;
 
 public interface PartitionSpecVisitor<T> {
   default T identity(int fieldId, String sourceName, int sourceId) {
@@ -99,7 +99,7 @@ public interface PartitionSpecVisitor<T> {
    * @return a list of the result produced by visiting each partition field
    */
   static <R> List<R> visit(PartitionSpec spec, PartitionSpecVisitor<R> visitor) {
-    List<R> results = Lists.newArrayListWithExpectedSize(spec.fields().size());
+    List<R> results = new ArrayList<>(spec.fields().size());
 
     for (PartitionField field : spec.fields()) {
       results.add(visit(spec.schema(), field, visitor));

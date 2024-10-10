@@ -18,6 +18,7 @@
  */
 package org.apache.iceberg.mr.hive;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.apache.hadoop.conf.Configuration;
@@ -148,7 +149,7 @@ public class TestHiveShell {
     try {
       OperationHandle handle =
           client.executeStatement(session.getSessionHandle(), statement, Collections.emptyMap());
-      List<Object[]> resultSet = Lists.newArrayList();
+      List<Object[]> resultSet = new ArrayList<>();
       if (handle.hasResultSet()) {
         RowSet rowSet;
         // keep fetching results until we can

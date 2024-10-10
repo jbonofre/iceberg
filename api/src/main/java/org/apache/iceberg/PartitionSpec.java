@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +33,6 @@ import org.apache.iceberg.exceptions.ValidationException;
 import org.apache.iceberg.relocated.com.google.common.base.Preconditions;
 import org.apache.iceberg.relocated.com.google.common.collect.ImmutableList;
 import org.apache.iceberg.relocated.com.google.common.collect.ListMultimap;
-import org.apache.iceberg.relocated.com.google.common.collect.Lists;
 import org.apache.iceberg.relocated.com.google.common.collect.Maps;
 import org.apache.iceberg.relocated.com.google.common.collect.Multimaps;
 import org.apache.iceberg.relocated.com.google.common.collect.Sets;
@@ -126,7 +126,7 @@ public class PartitionSpec implements Serializable {
     if (lazyPartitionType == null) {
       synchronized (this) {
         if (lazyPartitionType == null) {
-          List<Types.NestedField> structFields = Lists.newArrayListWithExpectedSize(fields.length);
+          List<Types.NestedField> structFields = new ArrayList<>(fields.length);
 
           for (PartitionField field : fields) {
             Type sourceType = schema.findType(field.sourceId());
@@ -287,7 +287,7 @@ public class PartitionSpec implements Serializable {
         if (fieldsBySourceId == null) {
           ListMultimap<Integer, PartitionField> multiMap =
               Multimaps.newListMultimap(
-                  Maps.newHashMap(), () -> Lists.newArrayListWithCapacity(fields.length));
+                  Maps.newHashMap(), () -> new ArrayList<>(fields.length));
           for (PartitionField field : fields) {
             multiMap.put(field.sourceId(), field);
           }
@@ -363,7 +363,7 @@ public class PartitionSpec implements Serializable {
    */
   public static class Builder {
     private final Schema schema;
-    private final List<PartitionField> fields = Lists.newArrayList();
+    private final List<PartitionField> fields = new ArrayList<>();
     private final Set<String> partitionNames = Sets.newHashSet();
     private final Map<Map.Entry<Integer, String>, PartitionField> dedupFields = Maps.newHashMap();
     private int specId = 0;

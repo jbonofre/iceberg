@@ -47,7 +47,6 @@ import org.apache.iceberg.mr.mapred.MapredIcebergInputFormat;
 import org.apache.iceberg.orc.VectorizedReadUtils;
 import org.apache.iceberg.parquet.ParquetSchemaUtil;
 import org.apache.iceberg.parquet.TypeWithSchemaVisitor;
-import org.apache.iceberg.relocated.com.google.common.collect.Lists;
 import org.apache.orc.impl.OrcTail;
 import org.apache.parquet.hadoop.ParquetFileReader;
 import org.apache.parquet.schema.MessageType;
@@ -85,8 +84,8 @@ public class HiveVectorizedReader {
       List<Integer> readColumnIds = ColumnProjectionUtils.getReadColumnIDs(job);
 
       List<PartitionField> fields = partitionSpec.fields();
-      List<Integer> partitionColIndicesList = Lists.newLinkedList();
-      List<Object> partitionValuesList = Lists.newLinkedList();
+      List<Integer> partitionColIndicesList = new LinkedList<>();
+      List<Object> partitionValuesList = new LinkedList<>();
 
       for (PartitionField field : fields) {
         if (field.transform().isIdentity()) {
@@ -159,7 +158,7 @@ public class HiveVectorizedReader {
             orcTail,
             false,
             false,
-            Lists.newArrayList(),
+            new ArrayList<>(),
             0,
             task.length(),
             path.getParent());

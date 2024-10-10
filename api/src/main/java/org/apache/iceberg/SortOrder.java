@@ -19,6 +19,7 @@
 package org.apache.iceberg;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -32,7 +33,6 @@ import org.apache.iceberg.expressions.Term;
 import org.apache.iceberg.expressions.UnboundTerm;
 import org.apache.iceberg.relocated.com.google.common.base.Preconditions;
 import org.apache.iceberg.relocated.com.google.common.collect.ImmutableList;
-import org.apache.iceberg.relocated.com.google.common.collect.Lists;
 import org.apache.iceberg.transforms.Transform;
 import org.apache.iceberg.transforms.Transforms;
 import org.apache.iceberg.types.Type;
@@ -191,7 +191,7 @@ public class SortOrder implements Serializable {
    */
   public static class Builder implements SortOrderBuilder<Builder> {
     private final Schema schema;
-    private final List<SortField> fields = Lists.newArrayList();
+    private final List<SortField> fields = new ArrayList<>();
     private Integer orderId = null;
     private boolean caseSensitive = true;
 

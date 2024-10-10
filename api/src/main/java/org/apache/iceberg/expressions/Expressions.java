@@ -18,10 +18,11 @@
  */
 package org.apache.iceberg.expressions;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.stream.Stream;
 import org.apache.iceberg.expressions.Expression.Operation;
 import org.apache.iceberg.relocated.com.google.common.base.Preconditions;
-import org.apache.iceberg.relocated.com.google.common.collect.Lists;
 import org.apache.iceberg.transforms.Transform;
 import org.apache.iceberg.transforms.Transforms;
 
@@ -198,11 +199,11 @@ public class Expressions {
   }
 
   public static <T> UnboundPredicate<T> in(String name, T... values) {
-    return predicate(Operation.IN, name, Lists.newArrayList(values));
+    return predicate(Operation.IN, name, new ArrayList<>(Arrays.asList(values)));
   }
 
   public static <T> UnboundPredicate<T> in(UnboundTerm<T> expr, T... values) {
-    return predicate(Operation.IN, expr, Lists.newArrayList(values));
+    return predicate(Operation.IN, expr, new ArrayList<>(Arrays.asList(values)));
   }
 
   public static <T> UnboundPredicate<T> in(String name, Iterable<T> values) {
@@ -216,11 +217,11 @@ public class Expressions {
   }
 
   public static <T> UnboundPredicate<T> notIn(String name, T... values) {
-    return predicate(Operation.NOT_IN, name, Lists.newArrayList(values));
+    return predicate(Operation.NOT_IN, name, new ArrayList<>(Arrays.asList(values)));
   }
 
   public static <T> UnboundPredicate<T> notIn(UnboundTerm<T> expr, T... values) {
-    return predicate(Operation.NOT_IN, expr, Lists.newArrayList(values));
+    return predicate(Operation.NOT_IN, expr, new ArrayList<>(Arrays.asList(values)));
   }
 
   public static <T> UnboundPredicate<T> notIn(String name, Iterable<T> values) {

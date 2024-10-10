@@ -21,7 +21,7 @@ package org.apache.iceberg.io;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.Deque;
-import org.apache.iceberg.relocated.com.google.common.collect.Lists;
+import java.util.LinkedList;
 import org.apache.iceberg.util.ExceptionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
 public class CloseableGroup implements Closeable {
   private static final Logger LOG = LoggerFactory.getLogger(CloseableGroup.class);
 
-  private final Deque<AutoCloseable> closeables = Lists.newLinkedList();
+  private final Deque<AutoCloseable> closeables = new LinkedList<>();
   private boolean suppressCloseFailure = false;
 
   /** Register a closeable to be managed by this class. */

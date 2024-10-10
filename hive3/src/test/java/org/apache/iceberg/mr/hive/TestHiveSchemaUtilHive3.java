@@ -25,14 +25,13 @@ import org.apache.hadoop.hive.metastore.api.FieldSchema;
 import org.apache.hadoop.hive.serde.serdeConstants;
 import org.apache.iceberg.Schema;
 import org.apache.iceberg.hive.TestHiveSchemaUtil;
-import org.apache.iceberg.relocated.com.google.common.collect.Lists;
 import org.apache.iceberg.types.Types;
 
 public class TestHiveSchemaUtilHive3 extends TestHiveSchemaUtil {
 
   @Override
   protected List<FieldSchema> getSupportedFieldSchemas() {
-    List<FieldSchema> fields = Lists.newArrayList(super.getSupportedFieldSchemas());
+    List<FieldSchema> fields = new ArrayList<>(super.getSupportedFieldSchemas());
     // timestamp local tz only present in Hive3
     fields.add(new FieldSchema("c_timestamptz", serdeConstants.TIMESTAMPLOCALTZ_TYPE_NAME, null));
     return fields;

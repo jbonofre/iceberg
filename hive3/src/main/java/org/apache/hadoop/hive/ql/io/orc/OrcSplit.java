@@ -36,7 +36,6 @@ import org.apache.hadoop.hive.ql.io.SyntheticFileId;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableUtils;
 import org.apache.hadoop.mapred.FileSplit;
-import org.apache.iceberg.relocated.com.google.common.collect.Lists;
 import org.apache.orc.OrcProto;
 import org.apache.orc.impl.OrcTail;
 import org.slf4j.Logger;
@@ -58,7 +57,7 @@ public class OrcSplit extends FileSplit implements ColumnarSplit, LlapAwareSplit
   private boolean hasBase;
   // partition root
   private Path rootDir;
-  private final List<AcidInputFormat.DeltaMetaData> deltas = Lists.newArrayList();
+  private final List<AcidInputFormat.DeltaMetaData> deltas = new ArrayList<>();
   private long projColsUncompressedSize;
   private transient Object fileKey;
   private long fileLen;

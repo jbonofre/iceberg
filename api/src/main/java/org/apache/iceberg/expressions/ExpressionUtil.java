@@ -22,6 +22,7 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -33,7 +34,6 @@ import org.apache.iceberg.PartitionSpec;
 import org.apache.iceberg.Schema;
 import org.apache.iceberg.Table;
 import org.apache.iceberg.relocated.com.google.common.collect.ImmutableSet;
-import org.apache.iceberg.relocated.com.google.common.collect.Lists;
 import org.apache.iceberg.transforms.Transforms;
 import org.apache.iceberg.types.Type;
 import org.apache.iceberg.types.Types;
@@ -497,7 +497,7 @@ public class ExpressionUtil {
       Set<String> distinctValues = ImmutableSet.copyOf(sanitizedValues);
       if (distinctValues.size()
           <= sanitizedValues.size() - LONG_IN_PREDICATE_ABBREVIATION_MIN_GAIN) {
-        List<String> abbreviatedList = Lists.newArrayListWithCapacity(distinctValues.size() + 1);
+        List<String> abbreviatedList = new ArrayList<>(distinctValues.size() + 1);
         abbreviatedList.addAll(distinctValues);
         abbreviatedList.add(
             String.format(

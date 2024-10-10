@@ -18,6 +18,7 @@
  */
 package org.apache.iceberg.expressions;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.iceberg.DataFile;
@@ -25,7 +26,6 @@ import org.apache.iceberg.Schema;
 import org.apache.iceberg.StructLike;
 import org.apache.iceberg.expressions.BoundAggregate.Aggregator;
 import org.apache.iceberg.relocated.com.google.common.collect.ImmutableList;
-import org.apache.iceberg.relocated.com.google.common.collect.Lists;
 import org.apache.iceberg.types.Types;
 
 /**
@@ -58,7 +58,7 @@ public class AggregateEvaluator {
 
   private AggregateEvaluator(List<BoundAggregate<?, ?>> aggregates) {
     ImmutableList.Builder<Aggregator<?>> aggregatorsBuilder = ImmutableList.builder();
-    List<Types.NestedField> resultFields = Lists.newArrayList();
+    List<Types.NestedField> resultFields = new ArrayList<>();
 
     for (int pos = 0; pos < aggregates.size(); pos += 1) {
       BoundAggregate<?, ?> aggregate = aggregates.get(pos);

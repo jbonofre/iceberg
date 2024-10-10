@@ -22,8 +22,12 @@ import static com.aliyun.oss.internal.OSSUtils.OSS_RESOURCE_MANAGER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.google.common.collect.Lists;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import org.apache.iceberg.exceptions.ValidationException;
-import org.apache.iceberg.relocated.com.google.common.collect.Lists;
 import org.junit.jupiter.api.Test;
 
 public class TestOSSURI {
@@ -110,7 +114,7 @@ public class TestOSSURI {
 
   @Test
   public void testValidSchemes() {
-    for (String scheme : Lists.newArrayList("https", "oss")) {
+    for (String scheme : new ArrayList<>(Arrays.asList("https", "oss"))) {
       OSSURI uri = new OSSURI(scheme + "://bucket/path/to/file");
       assertThat(uri.bucket()).isEqualTo("bucket");
       assertThat(uri.key()).isEqualTo("path/to/file");

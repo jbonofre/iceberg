@@ -18,9 +18,9 @@
  */
 package org.apache.iceberg;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.apache.iceberg.relocated.com.google.common.collect.Lists;
 import org.apache.iceberg.transforms.Transform;
 import org.apache.iceberg.transforms.Transforms;
 import org.apache.iceberg.types.Type;
@@ -87,7 +87,7 @@ public class UnboundSortOrder {
    * <p>Call {@link #builder()} to create a new builder.
    */
   static class Builder {
-    private final List<UnboundSortField> fields = Lists.newArrayList();
+    private final List<UnboundSortField> fields = new ArrayList<>();
     private Integer orderId = null;
 
     private Builder() {}

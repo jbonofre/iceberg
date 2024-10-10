@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -34,7 +35,6 @@ import org.apache.iceberg.relocated.com.google.common.collect.BiMap;
 import org.apache.iceberg.relocated.com.google.common.collect.ImmutableBiMap;
 import org.apache.iceberg.relocated.com.google.common.collect.ImmutableMap;
 import org.apache.iceberg.relocated.com.google.common.collect.ImmutableSet;
-import org.apache.iceberg.relocated.com.google.common.collect.Lists;
 import org.apache.iceberg.relocated.com.google.common.collect.Maps;
 import org.apache.iceberg.relocated.com.google.common.collect.Sets;
 import org.apache.iceberg.relocated.com.google.common.primitives.Ints;
@@ -167,7 +167,7 @@ public class Schema implements Serializable {
     // check whether the nested field is in a chain of required struct fields
     // exploring from root for better error message for list and map types
     Integer parentId = idToParent.get(field.fieldId());
-    Deque<Integer> deque = Lists.newLinkedList();
+    Deque<Integer> deque = new LinkedList<>();
     while (parentId != null) {
       deque.push(parentId);
       parentId = idToParent.get(parentId);

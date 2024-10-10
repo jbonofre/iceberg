@@ -18,12 +18,13 @@
  */
 package org.apache.iceberg;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 import org.apache.iceberg.expressions.Expression;
 import org.apache.iceberg.io.CloseableIterable;
 import org.apache.iceberg.metrics.MetricsReporter;
-import org.apache.iceberg.relocated.com.google.common.collect.Lists;
 
 /**
  * Scan objects are immutable and can be shared between threads. Refinement methods, like {@link
@@ -109,7 +110,7 @@ public interface Scan<ThisT, T extends ScanTask, G extends ScanTaskGroup<T>> {
    * @return a new scan based on this with the given projection columns
    */
   default ThisT select(String... columns) {
-    return select(Lists.newArrayList(columns));
+    return select(new ArrayList<>(Arrays.asList(columns)));
   }
 
   /**

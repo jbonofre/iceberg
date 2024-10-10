@@ -35,6 +35,7 @@ import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
@@ -42,7 +43,6 @@ import java.util.Map;
 import java.util.stream.Stream;
 import org.apache.directory.api.util.Hex;
 import org.apache.iceberg.relocated.com.google.common.base.Preconditions;
-import org.apache.iceberg.relocated.com.google.common.collect.Lists;
 import org.apache.iceberg.relocated.com.google.common.io.ByteStreams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -200,7 +200,7 @@ public class AliyunOSSMockLocalStore {
   }
 
   private List<Bucket> findBucketsByFilter(final DirectoryStream.Filter<Path> filter) {
-    List<Bucket> buckets = Lists.newArrayList();
+    List<Bucket> buckets = new ArrayList<>();
 
     try (DirectoryStream<Path> stream = Files.newDirectoryStream(root.toPath(), filter)) {
       for (final Path path : stream) {
