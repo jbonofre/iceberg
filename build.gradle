@@ -54,7 +54,7 @@ try {
 if (JavaVersion.current() == JavaVersion.VERSION_11) {
   project.ext.jdkVersion = '11'
   project.ext.extraJvmArgs = []
-} else if (JavaVersion.current() == JavaVersion.VERSION_17 || JavaVersion.current() == JavaVersion.VERSION_21) {
+} else if (JavaVersion.current() == JavaVersion.VERSION_17 || JavaVersion.current() == JavaVersion.VERSION_21 || JavaVersion.current() == JavaVersion.VERSION_23) {
   project.ext.jdkVersion = JavaVersion.current().getMajorVersion().toString()
   project.ext.extraJvmArgs = ["--add-opens", "java.base/java.io=ALL-UNNAMED",
                               "--add-opens", "java.base/java.lang.invoke=ALL-UNNAMED",
@@ -78,7 +78,7 @@ if (JavaVersion.current() == JavaVersion.VERSION_11) {
                               "--add-opens", "java.base/sun.security.action=ALL-UNNAMED",
                               "--add-opens", "java.base/sun.util.calendar=ALL-UNNAMED"]
 } else {
-  throw new GradleException("This build must be run with JDK 11 or 17 or 21 but was executed with JDK " + JavaVersion.current())
+  throw new GradleException("This build must be run with JDK 11 or 17 or 21 or 23 but was executed with JDK " + JavaVersion.current())
 }
 
 tasks.withType(AbstractArchiveTask).configureEach {
